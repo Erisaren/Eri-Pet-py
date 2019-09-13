@@ -1,13 +1,15 @@
 import random
 import time
+#  import datetime
+from time import localtime
 import textwrap
+import sys
 
 
-class Droid:
+class Droid(object):
     def __init__(self, owner, name, gender, model, age):
-
-        self._owner = owner.capitalize()
-        self._name = name.capitalize()
+        self._owner = owner
+        self._name = name
         self._gender = gender
         self._model = model
         self._age = age  # Should increment for day % 86400 = 0
@@ -18,14 +20,21 @@ class Droid:
         self._loneliness = random.randint(15, 75)  # Use the play function.
         self._energy = random.randint(15, 75)  # Use the sleep function.
 
-        self._happiness = (round(self._hunger + self._thirst + self._smell) / 3)
-        self._health = (round(self._hunger + self._thirst + self._energy) / 3)
+        self._happiness = 300 - (self._hunger + self._thirst + self._smell)  # Happiness 300
+        self._health = 200 - ((self._energy * 2) - ((self._hunger + self._thirst) / 2))  # Health 200
+        self._health = round(self._health)
 
         self._game_over = False  # Not implemented.
         self._poop_on_floor = 0  # Use the clean function.
 
+        self._birth = 0  # Not implemented
+        self.hour = 0  # Not implemented
+
+    def update(self):
+        pass
+
     def stats(self):
-        print(textwrap.dedent("""._._._._._._._._._._._._"""))
+        print(textwrap.dedent("""._._._._._._._."""))
         print(f"Hunger: {self._hunger}")
         print(f"Thirst: {self._thirst}")
         print(f"Hygiene: {self._smell}")
@@ -33,98 +42,200 @@ class Droid:
         print(f"Energy: {self._energy}")
         print(f"Happiness: {self._happiness}")
         print(f"Health: {self._health}")
-        print(textwrap.dedent("""._._._._._._._._._._._._"""))
+        if self._poop_on_floor > 5:
+            print(f"Poop: {self._name} has pooped!")
+        else:
+            print("Poop: No poop.")
+        print(textwrap.dedent("""._._._._._._._."""))
 
-    def feed(self, food):  # Based on favourite food of each robot.
-        if food == "lightning bolt" and self._model == "electric":
+    def feed(self):  # Based on favourite food of each robot.
+        food = input("Please choose between lightning \"bolt\", \"coal\" or \"ice\":")
+
+        if food == "bolt" and self._model == "electric":
             self._hunger -= 15
-            self._poop_on_floor += 0.5
-            return True
+            self._poop_on_floor += 5
+            print(f"{self._name}: Yum!")
+            if self._hunger < 0:
+                self._hunger = 0
+            elif self._poop_on_floor > 100:
+                self._poop_on_floor = 100
+            return
+
         elif food == "coal" and self._model == "coal":
             self._hunger -= 15
-            self._poop_on_floor += 0.5
-            return True
+            self._poop_on_floor += 5
+            print(f"{self._name}: Yum!")
+            if self._hunger < 0:
+                self._hunger = 0
+            elif self._poop_on_floor > 100:
+                self._poop_on_floor = 100
+            return
+
         elif food == "ice" and self._model == "steam":
             self._hunger -= 15
-            self._poop_on_floor += 0.5
-            return True
+            self._poop_on_floor += 5
+            print(f"{self._name}: Yum!")
+            if self._hunger < 0:
+                self._hunger = 0
+            elif self._poop_on_floor > 100:
+                self._poop_on_floor = 100
+            return
+
+        elif self._hunger <= 0:
+            print(f"{self._name} is not hungry!")
+            self._hunger = 0
+            return
+
         else:
             self._hunger -= 5
-            self._poop_on_floor += 0.5
+            self._poop_on_floor += 10
             print(f"{self._name}: Yuck!!! It is not my favourite!")
-            return False
+            if self._hunger < 0:
+                self._hunger = 0
+            elif self._poop_on_floor > 100:
+                self._poop_on_floor = 100
+            return
 
-    def drink(self, drink):
-        while True:  # Based on favourite food of each robot.
-            if drink == "lithium-ion" and self._model == "electric":
-                self._thirst -= 15
-                self._poop_on_floor += 0.5
-                break
-            elif drink == "oil" and self._model == "coal":
-                self._thirst -= 15
-                self._poop_on_floor += 0.5
-                break
-            elif drink == "steam" and self._model == "steam":
-                self._thirst -= 15
-                self._poop_on_floor += 0.5
-                break
-            elif (drink == "lithium-ion" or drink == "oil" or drink == "steam") \
-                    and (self._model == "electric" or self._model == "coal"
-                         or "steam"):
-                self._thirst -= 5
-                self._poop_on_floor += 0.5
-                print(f"{self._name}: Eww!!! It is not my favourite drink!")
-                break
-            else:
-                print()
+    def drink(self):
+        drink = input("Please choose between \"li-ion\", \"oil\" or \"steam\":")
 
-    def clean(self, duster):
-        while True:
-            if (duster == "broom" or duster == "Broom") and self._poop_on_floor > 5:
-                print(f"You clean up {self._name}.")
-                self._poop_on_floor -= 5
-                self._smell -= 25
-                break
-            elif (duster == "vacuum" or duster == "Vacuum") and self._poop_on_floor > 5:
-                print(f"You clean up {self._name}.")
-                self._poop_on_floor -= 10
-                self._smell -= 45
-                break
-            else:
-                print("There's nothing to clean.")
-                break
+        if drink == "li-ion" and self._model == "electric":
+            self._thirst -= 15
+            self._poop_on_floor += 5
+            print(f"{self._name}: Hmm!")
+            if self._thirst < 0:
+                self._thirst = 0
+            elif self._poop_on_floor > 100:
+                self._poop_on_floor = 100
+            return
 
-    def bathe(self, brush):
-        while True:
-            if (brush == "sponge" or brush == "Sponge") and self._smell > 0:
-                print(f"You bathe {self._name}.")
-                self._smell -= 50
-                self._poop_on_floor -= 50
-                break
-            elif (brush == "bathtub" or brush == "Bathtub") and self._smell > 0:
-                print(f"You bathe {self._name}.")
+        elif drink == "oil" and self._model == "coal":
+            self._thirst -= 15
+            self._poop_on_floor += 5
+            print(f"{self._name}: Hmm!")
+            if self._thirst < 0:
+                self._thirst = 0
+            elif self._poop_on_floor > 100:
+                self._poop_on_floor = 100
+            return
+
+        elif drink == "steam" and self._model == "steam":
+            self._thirst -= 15
+            self._poop_on_floor += 5
+            print(f"{self._name}: Hmm!")
+            if self._thirst < 0:
+                self._thirst = 0
+            elif self._poop_on_floor > 100:
+                self._poop_on_floor = 100
+            return
+
+        elif self._thirst <= 0:
+            print(f"{self._name} is not thirsty!")
+            self._thirst = 0
+            return
+
+        else:
+            self._thirst -= 5
+            self._poop_on_floor += 10
+            print(f"{self._name}: Eww!!! It is not my favourite drink!")
+            if self._thirst < 0:
+                self._thirst = 0
+            elif self._poop_on_floor > 100:
+                self._poop_on_floor = 100
+            return
+
+    def clean(self):
+        duster = input("Please choose between \"broom\", or \"vacuum\":")
+        if (duster == "broom" or duster == "Broom") and self._poop_on_floor > 5:
+            print(f"You clean up {self._name}'s poop.")
+            self._poop_on_floor -= 5
+            self._smell -= 25
+            if self._smell < 0:
                 self._smell = 0
+            elif self._poop_on_floor < 0:
                 self._poop_on_floor = 0
-                break
-            else:
-                print(f"{self._name} is already clean.")
-                break
+            return
+
+        elif (duster == "vacuum" or duster == "Vacuum") and self._poop_on_floor > 5:
+            print(f"You clean up {self._name}.")
+            self._poop_on_floor -= 10
+            self._smell -= 45
+            if self._smell < 0:
+                self._smell = 0
+            elif self._poop_on_floor < 0:
+                self._poop_on_floor = 0
+            return
+
+        elif self._smell < 0:
+            self._smell = 0
+            print("There's nothing to clean.")
+            return
+
+        else:
+            print(f"{self._name} is not dirty!")
+
+    def bath(self):
+        brush = input("Please choose between \"sponge\" or \"bathtub\":")
+        if (brush == "sponge" or brush == "Sponge") and self._smell > 0:
+            print(f"You bathe {self._name}.")
+            self._smell -= 50
+            self._poop_on_floor -= 50
+            if self._smell < 0:
+                self._smell = 0
+            elif self._poop_on_floor < 0:
+                self._poop_on_floor = 0
+            return
+
+        elif (brush == "bathtub" or brush == "Bathtub") and self._smell > 0:
+            print(f"You bathe {self._name}.")
+            self._smell = 0
+            self._poop_on_floor = 0
+            if self._smell < 0:
+                self._smell = 0
+            elif self._poop_on_floor < 0:
+                self._poop_on_floor = 0
+            return
+
+        elif self._poop_on_floor < 0:
+            self._poop_on_floor = 0
+            print(f"{self._name} has no poop to clean.")
+            return
+
+        elif self._smell <= 0:
+            self._smell = 0
+            print(f"{self._name} is already clean.")
+            return
+
+        elif self._poop_on_floor < 0:
+            self._poop_on_floor = 0
+            print(f"{self._name} has no poop to clean.")
+            return
+
+        else:
+            print(f"{self._name} is not dirty!")
 
     def sleep(self):
-        while True:
+        while True:  # Need to put a remaining sleep value and substract from 100 and add to sleep value and set time
+            # according to remain value.
             if 0 < self._energy < 100:
                 print(f"{self._name} is sleeping.")
                 self._energy += 25
-                time.sleep(5)
-            else:
+                time.sleep(1)
+                if self._energy > 100:
+                    self._energy = 100
+
+            elif self._energy == 100:
+                print(f"{self._name} is not sleepy!")
+                self._energy = 100
                 print(f"{self._name} is feeling energetic!")
                 break
 
     def dance(self):
         print(f"{self._name} perform a robot break-dance.")
+        return
 
     def play(self):
-        if self._loneliness == 100:
+        if self._loneliness == 0:
             print(f"{self._name} isn't in the mood to play...")
             return
         elif self._hunger > 60:
@@ -139,23 +250,44 @@ class Droid:
             if self._happiness >= 80:
                 print(f"{self._name} retrieves the ball with lightning speed!")
                 self._smell += 5
+                self._hunger += 15
+                self._energy -= 15
+                self._loneliness -= 20
+                if self._smell > 100:
+                    self._smell = 100
+                elif self._loneliness < 0:
+                    self._loneliness = 0
+                elif self._energy < 0:
+                    self._energy = 0
+                return
             elif self._happiness >= 70:
                 print(f"{self._name} takes their time retrieving the ball.")
                 self._smell += 5
+                self._hunger += 15
+                self._energy -= 15
+                self._loneliness += 15
+                if self._smell > 100:
+                    self._smell = 100
+                elif self._loneliness < 0:
+                    self._loneliness = 0
+                elif self._energy < 0:
+                    self._energy = 0
+                return
             else:
-                print(
-                    f"{self._name} watches the ball fall and looks at you dumbly.")
-            self._hunger += 20
-            self._energy -= 20
+                print(f"{self._name} watches the ball fall and looks at you dumbly.")
+                return
 
     def heal(self):
-        if self._health < 100:
+        if self._health < 200:
             print(f"You heal up {self._name}.")
-            self._health += 15
-            print(f"{self._name} is healed now.")
-
-        else:
+            self._health += 30
+            if self._health >= 200:
+                self._health = 200
+            return
+        elif self._health >= 200:
+            self._health = 200
             print(f"{self._name} is not sick.")
+            return
 
     def chitchat(self, event="droid"):  # Expression states.
         faces = {
@@ -231,28 +363,31 @@ class Droid:
             print(f"{self._name} is sleepy.")
 
         print("Happiness:")
-        if 80 <= self._happiness <= 100:
+        if 240 <= self._happiness <= 300:
             print(f"{self._name} seems ecstatic.")
-        elif 50 <= self._happiness < 80:
+        elif 150 <= self._happiness < 240:
             print(f"{self._name} seems in high spirits.")
-        elif 25 <= self._happiness < 50:
+        elif 75 <= self._happiness < 150:
             print(f"{self._name} seems kind of down.")
         else:
             print(f"{self._name} seems mad and depressed.")
 
         print("Health:")
-        if 80 <= self._health <= 100:
+        if 160 <= self._health <= 200:
             print(f"{self._name} seems healthy.")
-        elif 50 <= self._health < 80:
+        elif 100 <= self._health < 160:
             print(f"{self._name} is under the weather.")
-        elif 25 <= self._health < 50:
+        elif 50 <= self._health < 100:
             print(f"{self._name} is kind of sick.")
-        elif 5 <= self._health < 25:
+        elif 10 <= self._health < 50:
             print(f"{self._name} is sick.")
-        elif 1 <= self._health < 5:
+        elif 1 <= self._health < 10:
             print(f"{self._name} is dying.")
         else:
+            if 0 < self._health:
+                self._health = 0
             print(f"{self._name} is no more...")
+            sys.exit(0)
 
 
 def main():
@@ -316,8 +451,7 @@ def main():
                 model = "steam"
                 break
         else:
-            model = input(
-                "Please enter your pet's type. You can choose between \"electric\", \"coal\" or \"steam\": ")
+            model = input("Please enter your pet's type. You can choose between \"electric\", \"coal\" or \"steam\": ")
             answer3 = str(input(f"Are you okay with {model}?\nPress \"Y\" for yes or \"N\" for no."))
 
     print("Processing.")
@@ -327,64 +461,58 @@ def main():
     print("Processing...")
     time.sleep(1)
     age = 0
+    prompt = ""
     bot = Droid(owner, name, gender, model, age)
 
-    #  def game(self):
-    print(bot.stats())
-    print(textwrap.dedent("""_._._._._._._._._._._._._._._._._._._._._._._._._._._._._._._._._._._._._."""))
-    print(
-        f"Pet sheet: [{name}]: {pp.capitalize()} is the {gender} {model.lower()} type and {pop} caregiver is {owner}"
-        f".")
-    print(textwrap.dedent("""_._._._._._._._._._._._._._._._._._._._._._._._._._._._._._._._._._._._._."""))
-    print(
-        f"\n{name}: Greetings, {owner}! I am happy to see you!\nI can eat, drink, shower, sleep, or play with you if "
-        f"you enter each of the following commands:\n")
-    print(textwrap.dedent("""
-    #----------------MENU--------------#
-    # \"F\" for [feed], \"D\" for [drink]  #
-    # \"C\" for [clean], \"B\" for [bath]  #
-    # \"Z\" for [sleep], \"P\" for [play]  #
-    # \"X\" for [heal], \"O\" for  [chat]  #
-    # You can check my status with: \"H\"#
-    # For [status], press \"Q\" to quit: #
-    #----------------------------------#
-    """))
-    prompt = input()
+    print(textwrap.dedent("""_._._._._._._._._._._._._._._._._._._._._._._._._._._._._._._._._._._._._._."""))
+    print(f"Pet sheet: [{name}]: {pp.capitalize()} is the {gender} {model.lower()} type and {pop} caregiver "
+          f"is {owner}.")
+    print(textwrap.dedent("""_._._._._._._._._._._._._._._._._._._._._._._._._._._._._._._._._._._._._._."""))
+    print(f"\n{name}: Greetings, {owner}! I am happy to see you!\nI can eat, drink, shower, sleep, or play with you"
+          f" if you enter each of the following commands:\n")
 
-    if prompt == "F" or prompt == "f":
-        food = input("Please choose between \"lightning bolt\", \"coal\" or \"ice\":")
-        while not bot.feed(food):
-            food = input("Please choose between \"lightning bolt\", \"coal\" or \"ice\":")
+    while prompt != "q" or prompt != "Q":
+        print(bot.stats())
+        print(textwrap.dedent("""
+        #----------------MENU--------------#
+        # \"F\" for [feed], \"D\" for [drink]  #
+        # \"C\" for [clean], \"B\" for [bath]  #
+        # \"Z\" for [sleep], \"P\" for [play]  #
+        # \"X\" for [heal], \"O\" for  [chat]  #
+        # You can check my status with: \"H\"#
+        # For [status], press \"Q\" to quit: #
+        #----------------------------------#
+        """))
+        prompt = input()
 
-    elif prompt == "D" or prompt == "d":
-        drink = input("Please choose between \"lithium-ion\", \"oil\" or \"steam\":")
-        while not bot.drink(drink):
-            drink = input("Please choose between \"lithium-ion\", \"oil\" or \"steam\":")
+        if prompt == "F" or prompt == "f":
+            bot.feed()
 
-    elif prompt == "C" or prompt == "c":
-        duster = input("Please choose between a \"broom\" or a  \"vacuum\" cleaner:")
-        while not bot.clean(duster):
-            duster = input("Please choose between a \"broom\" or a  \"vacuum\" cleaner:")
+        elif prompt == "D" or prompt == "d":
+            bot.drink()
 
-    elif prompt == "B" or prompt == "b":
-        brush = input("Please choose between a \"sponge\" bath or a  \"bathtub\" bath:")
-        while not bot.clean(brush):
-            brush = input("Please choose between a \"sponge\" bath or a  \"bathtub\" bath:")
+        elif prompt == "C" or prompt == "c":
+            bot.clean()
 
-    elif prompt == "Z" or prompt == "z":
-        bot.sleep()
+        elif prompt == "B" or prompt == "b":
+            bot.bath()
+        elif prompt == "Z" or prompt == "z":
+            bot.sleep()
 
-    elif prompt == "P" or prompt == "p":
-        bot.play()
+        elif prompt == "P" or prompt == "p":
+            bot.play()
 
-    elif prompt == "X" or prompt == "x":
-        bot.heal()
+        elif prompt == "X" or prompt == "x":
+            bot.heal()
 
-    elif prompt == "O" or prompt == "o":
-        bot.chitchat()
+        elif prompt == "O" or prompt == "o":
+            bot.chitchat()
 
-    elif prompt == "H" or prompt == "h":
-        print(bot.status())
+        elif prompt == "H" or prompt == "h":
+            print(bot.status())
+
+    if prompt == "q" or prompt == "Q":
+        sys.exit(0)
 
 
 if __name__ == "__main__":
