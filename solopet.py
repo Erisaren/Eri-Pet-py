@@ -116,82 +116,6 @@ class Pet(object):
             print(f"{self._name} is not sick.")
             return
 
-    def status(self):  # Check the mood.
-        print("Satiety:")
-        if self._hunger == 100:
-            print(f"{self._name} is not hungry.")
-        elif 80 <= self._hunger < 100:
-            print(f"{self._name} is a little peckish.")
-        elif 50 <= self._hunger < 80:
-            print(f"{self._name} is hungry.")
-        elif 25 <= self._hunger < 50:
-            print(f"{self._name} is very hungry.")
-        else:
-            print(f"{self._name} is starving.")
-
-        print("Quench:")
-        if self._thirst == 100:
-            print(f"{self._name} is not thirsty.")
-        elif 80 <= self._thirst < 100:
-            print(f"{self._name} is a little parched.")
-        elif 50 <= self._thirst < 80:
-            print(f"{self._name} is thirsty.")
-        elif 25 <= self._thirst < 50:
-            print(f"{self._name} is very thirsty.")
-        else:
-            print(f"{self._name} is drained.")
-
-        print("Hygiene:")
-        if self._smell == 100:
-            print(f"{self._name} is squeaky clean.")
-        elif 80 <= self._smell < 100:
-            print(f"{self._name} is a little dirty.")
-        elif 50 <= self._smell < 80:
-            print(f"{self._name} is dirty.")
-        elif 25 <= self._smell < 50:
-            print(f"{self._name} is very dirty.")
-        else:
-            print(f"{self._name} is stinking.")
-
-        print("Energy:")
-        if self._energy == 100:
-            print(f"{self._name} is energetic.")
-        elif 80 <= self._energy < 100:
-            print(f"{self._name} is awake.")
-        elif 50 <= self._energy < 80:
-            print(f"{self._name} is somewhat drowsy.")
-        elif 25 <= self._energy < 50:
-            print(f"{self._name} is very drowsy.")
-        else:
-            print(f"{self._name} is sleepy.")
-
-        print("Happiness:")
-        if 80 <= self._happiness <= 100:
-            print(f"{self._name} seems ecstatic.")
-        elif 50 <= self._happiness < 80:
-            print(f"{self._name} seems in high spirits.")
-        elif 25 <= self._happiness < 50:
-            print(f"{self._name} seems kind of down.")
-        else:
-            print(f"{self._name} seems mad and depressed.")
-
-        print("Health:")
-        if 80 <= self._health <= 100:
-            print(f"{self._name} seems healthy.")
-        elif 50 <= self._health < 80:
-            print(f"{self._name} is under the weather.")
-        elif 25 <= self._health < 50:
-            print(f"{self._name} is kind of sick.")
-        elif 5 <= self._health < 25:
-            print(f"{self._name} is sick.")
-        elif 1 <= self._health < 5:
-            print(f"{self._name} is dying.")
-        else:
-            if self._health <= 0:
-                self._health = 0
-            print(f"{self._name} is no more...")
-            sys.exit(0)
-
 
 def main():
     print("Welcome to Erisaren's sample pet game!")
@@ -264,9 +188,9 @@ def main():
         print("""
         #----------------MENU--------------#
         # \"F\" for [feed], \"D\" for [drink]  #
-        # \"C\" for [clean], \"B\" for [bath]  #
+        # \"B\" for [bath]                     #
         # \"Z\" for [sleep],  \"X\" for [heal] #
-        # \"H\" for [status],  \"Q\" to quit:  #
+        # \"Q\" to quit:                      #
         #----------------------------------#
         """)
         prompt = input()
@@ -277,9 +201,6 @@ def main():
         elif prompt == "D" or prompt == "d":
             bot.drink()
 
-        elif prompt == "C" or prompt == "c":
-            bot.clean()
-
         elif prompt == "B" or prompt == "b":
             bot.bath()
 
@@ -288,9 +209,6 @@ def main():
 
         elif prompt == "X" or prompt == "x":
             bot.heal()
-
-        elif prompt == "H" or prompt == "h":
-            print(bot.status())
 
         elif prompt == "Q" or prompt == "q":
             sys.exit(0)
