@@ -66,19 +66,6 @@ class Pet(object):
             self._thirst = 100
         return
 
-    def clean(self):  # Dust the pet.
-        print(f"You clean up {self._name}.")
-        self._smell += 45
-        self._poop_on_floor -= 15
-        if self._smell > 100 and self._poop_on_floor > 100:
-            self._smell = 100
-            self._poop_on_floor = 100
-        elif self._poop_on_floor > 100:
-            self._poop_on_floor = 100
-        elif self._smell > 100:
-            self._smell = 100
-        return
-
     def bath(self):  # Give bath to the pet.
         print(f"You bathe {self._name}.")
         self._smell = 100
