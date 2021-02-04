@@ -1,107 +1,270 @@
 import random
-import time
+
 import sys
+import time
+# import pickle
+
+# TODO Put an ailment system from playing too much and from outdoor system.
+# TODO Put an outdoor system to play and out.
+# TODO Tweak happiness system depending on basic stats and play time.
+# TODO Fix hygiene.
+# TODO pickle 101 to be able to save and load Pet' state.
 
 
 class Pet(object):
-    def __init__(self, owner, name, gender, age):  # defining values.
+    def __init__(self, owner, name, gender, age):  # Defining one-time values for the pet.
         self._owner = owner
         self._name = name
         self._gender = gender
         self._age = age
 
-        #  Random stats at start.
-        self._hunger = random.randint(15, 75)
-        self._thirst = random.randint(15, 75)
-        self._smell = random.randint(15, 75)
-        self._energy = random.randint(15, 75)
-        self._poop_on_floor = 0
+        self._likefood = ["apple", "grapes", "mango", "pineapple", "watermelon"]
+        self._dislikefood = ["apple", "grapes", "mango", "pineapple", "watermelon"]
+        self._lf = (random.choice(self._likefood))
+        self._df = (random.choice(self._dislikefood))
+        self._likedrink = ["juice", "milk", "soda", "water", "yoghurt"]
+        self._dislikedrink = ["juice", "milk", "soda", "water", "yoghurt"]
+        self._ld = (random.choice(self._likedrink))
+        self._dd = (random.choice(self._dislikedrink))
 
-        #  Happiness and Health calculation.
-        self._happiness = (self._hunger + self._thirst + self._smell) / 3
-        self._health = (self._energy + self._hunger + self._thirst) / 3
+        self._sickfoodhigh = 0  # Setting sickness gauge
+        self._sickfoodlow = 0  # to fire an ailment
+        self._sickdrinkhigh = 0  # and decrease
+        self._sickdrinklow = 0  # the health system.
+        self._poop = 0
+        self._pee = 0
 
-        # Rounding so that 0.5 = 0.
-        self._happiness = round(self._happiness)
-        self._health = round(self._health)
+        self._satiety = random.randint(15, 75)  # 100 means satiated.
+        self._hydration = random.randint(15, 75)  # 100 means hydrated.
+        self._energy = random.randint(15, 75)  # 100 means energised.
+        self._health = 100  # 100 means healthy.
+        self._cleanliness = random.randint(35, 75)  # 100 means clean.
+        self._happiness = round((self._satiety + self._hydration + self._cleanliness) / 3)
 
-    def stats(self):  # Displays the stats.
-
-        print(f"Satiety: {self._hunger}")
-        print(f"Quench: {self._thirst}")
-        print(f"Hygiene: {self._smell}")
-        print(f"Energy: {self._energy}")
-        print(f"Happiness: {self._happiness}")
-        print(f"Health: {self._health}")
-        if self._poop_on_floor > 5:
-            print(f"Poop: {self._name} has pooped!")
-        else:
-            print("Poop: No poop.")
-
-    def feed(self):  # Give food to the pet.
-
-        self._hunger += 15
-        self._poop_on_floor += 5
-        print(f"{self._name}: Yum!")
-        if self._hunger > 100 and self._poop_on_floor > 100:
-            self._hunger = 100
-            self._poop_on_floor = 100
-        elif self._poop_on_floor > 100:
-            self._poop_on_floor = 100
-        elif self._hunger > 100:
-            self._hunger = 100
+    def feed_refresh(self):  # Stat refresher for hunger system.
+        if self._satiety >= 100:
+            print(f"{self._name} is satiated.")
+            self._satiety = 100
+        elif self._satiety <= 0:
+            print(f"{self._name} is starving!")
+            self._satiety = 0
+        elif 0 < self._satiety < 100:
+            print(f"{self._name}'s satiety level: {self._satiety}.")
         return
 
-    def drink(self):  # Give water to the pet.
+    def drink_refresh(self):  # Stat refresher for thirst system.
+        if self._hydration >= 100:
+            print(f"{self._name} is hydrated.")
+            self._hydration = 100
+        elif self._hydration <= 0:
+            print(f"{self._name} is thirsty!")
+            self._hydration = 0
+        elif 0 < self._hydration < 100:
+            print(f"{self._name}'s hydration level: {self._hydration}.")
+        return
 
-        self._thirst += 15
-        self._poop_on_floor += 2
-        print(f"{self._name}: Hmm!")
-        if self._thirst > 100 and self._poop_on_floor > 100:
-            self._thirst = 100
-            self._poop_on_floor = 100
-        elif self._poop_on_floor > 100:
-            self._poop_on_floor = 100
-        elif self._thirst > 100:
-            self._thirst = 100
+    def bath_refresh(self):  # Stat refresher for hygiene system.
+        if self._poop <= 0 and self._pee <= 0:
+            print(f"{self._name} is squeaky clean.")
+        elif self._poop <= 25 and self._pee <= 25:
+            print(f"{self._name} is clean.")
+
+        if 25 < self._poop < 51:
+            print(f"{self._name} needs to go poop.")
+        elif 25 < self._pee < 51:
+            print(f"{self._name} needs to go pee.")
+        elif (25 < self._poop < 50) and (25 < self._pee < 50):
+            print(f"{self._name} needs to visit the bathroom.")
+
+        if self._poop > 50:
+            self._cleanliness = 0
+            print(f"{self._name} has pooped on the floor.")
+            self._poop = 0
+        elif self._pee > 50:
+            self._cleanliness = 0
+            print(f"{self._name} has peed on the floor.")
+            self._pee = 0
+        elif (self._poop > 50) and (self._pee > 50):
+            self._cleanliness = 0
+            print(f"{self._name} has left a mess on the floor.")
+            self._poop = 0
+            self._pee = 0
+        return
+
+    def heal_refresh(self):  # Stat refresher for health system.
+        while True:
+            if self._satiety > 100:
+                self._sickfoodhigh = (self._satiety - 100)
+                break
+
+            elif self._satiety < 0:
+                self._sickfoodlow = (0 - self._satiety)
+                break
+
+            if self._hydration > 100:
+                self._sickdrinkhigh = (self._hydration - 100)
+                break
+
+            elif self._hydration < 0:
+                self._sickdrinklow = (0 - self._hydration)
+                break
+
+            sick = self._sickfoodhigh + self._sickfoodlow + self._sickdrinkhigh + self._sickdrinklow
+
+            if 0 < sick < 11:
+                self._health -= 5
+                break
+
+            elif 11 < sick < 31:
+                self._health -= 10
+                break
+
+            elif 31 < sick < 61:
+                self._health -= 15
+                break
+
+            elif 61 < sick < 101:
+                self._health -= 20
+                break
+
+            elif sick > 100:
+                self._health += 25
+                break
+
+            if 0 < self._health < 25:
+                print(f"{self._name} looks very sick.")
+                break
+            elif 25 < self._health < 50:
+                print(f"{self._name} looks sick.")
+                break
+            elif 50 < self._health < 75:
+                print(f"{self._name} looks feverish.")
+                break
+            elif 75 < self._health < 100:
+                print(f"{self._name} looks a bit feverish.")
+                break
+            elif self._health == 100:
+                print(f"{self._name} is healthy.")
+                break
+            elif self._health <= 0:
+                print(f"{self._name}: Good-Bye, {self._owner}...")
+                break
+
+    def feed(self):  # Give food to the pet.
+        while self._satiety < 100:
+            print("Please feed your pet something. You can choose between 'apple' 'grapes' 'mango' 'pineapple' or "
+                  "'watermelon': ")
+            feed = input()
+
+            if feed == self._lf:
+                print(f"{self._name}: Yum!")
+                print(f"It seems {self._name} likes " + self._lf + " a lot!")
+                self._satiety += 15
+                self._happiness += 5
+                self._poop += 5
+                break
+
+            elif feed == self._df:
+                print(f"{self._name}: Yuck!")
+                print(f"It seems {self._name} dislikes " + self._df + " a lot!")
+                self._satiety += 5
+                self._happiness -= 10
+                self._poop += 2
+                break
+
+            elif feed != self._lf and feed != self._df:
+                print(f"{self._name}: Nom!")
+                print(f"{self._name} seems fine with " + feed + ".")
+                self._satiety += 10
+                self._happiness += 1
+                self._poop += 3
+                break
+
+            else:
+                break
+
+        return
+
+    def drink(self):  # Give drink to the pet.
+
+        while self._hydration < 100:
+            print("Please give any beverage to your pet. You can choose between 'juice' 'milk' 'soda' 'water' or "
+                  "'yoghurt': ")
+            drink = input()
+
+            if drink == self._ld:
+                print(f"{self._name}: Yum!")
+                print(f"It seems {self._name} likes " + self._ld + " a lot!")
+                self._hydration += 15
+                self._happiness += 5
+                self._pee += 5
+                break
+
+            elif drink == self._dd:
+                print(f"{self._name}: Yuck!")
+                print(f"It seems {self._name} dislikes " + self._dd + " a lot!")
+                self._hydration += 5
+                self._happiness -= 10
+                self._pee += 2
+                break
+
+            elif drink != self._ld and drink != self._dd:
+                print(f"{self._name}: Nom!")
+                print(f"{self._name} seems fine with " + drink + ".")
+                self._hydration += 10
+                self._happiness += 1
+                self._pee += 3
+                break
+
         return
 
     def bath(self):  # Give bath to the pet.
         print(f"You bathe {self._name}.")
-        self._smell = 100
-        self._poop_on_floor = 0
-        if self._smell > 100 and self._poop_on_floor > 100:
-            self._hunger = 100
-            self._poop_on_floor = 100
-        elif self._poop_on_floor > 100:
-            self._poop_on_floor = 100
-        elif self._smell > 100:
-            self._smell = 100
+
+        while self._cleanliness < 100:
+            self._cleanliness = 100
+            self._poop = 0
+            self._pee = 0
+
         return
 
     def sleep(self):  # Tuck the pet in bed.
         while True:
-            if 0 < self._energy < 100:
+            if self._energy < 100:
                 print(f"{self._name} is sleeping.")
                 self._energy += 25
                 time.sleep(1)
                 if self._energy > 100:
                     self._energy = 100
 
-            elif self._energy == 100:
-                print(f"{self._name} is feeling energetic!")
+            elif self._energy >= 100:
+                print(f"{self._name} is feeling energetic already!")
+                self._energy = 100
                 break
+        return
 
     def heal(self):  # Heal the pet.
-        if self._health < 100:
-            print(f"You heal up {self._name}.")
-            self._health += 30
-            if self._health > 100:
-                self._health = 100
-            return
-        elif self._health == 100:
+
+        if 0 < self._health < 100:
+            print(f"You give {self._name} a medicine.")
+            self._health += 25
+
+        if self._health == 100:
             print(f"{self._name} is not sick.")
-            return
+
+        elif self._health <= 0:
+            print(f"Your pet is in a better world now.")
+
+        return
+
+    def stats(self):  # Defining stats.
+
+        print(f"Satiety: {self._satiety}")
+        print(f"Hydration: {self._hydration}")
+        print(f"Hygiene: {self._cleanliness}")
+        print(f"Energy: {self._energy}")
+        print(f"Happiness: {self._happiness}")
+        print(f"Health: {self._health}")
 
 
 def main():
@@ -171,6 +334,10 @@ def main():
         f" if you enter each of the following commands:\n")
 
     while prompt != "Q" or prompt != "q":
+        bot.feed_refresh()
+        bot.drink_refresh()
+        bot.bath_refresh()
+        bot.heal_refresh()
         print(bot.stats())
         print("""
         #----------------MENU--------------#
