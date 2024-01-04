@@ -9,8 +9,17 @@ import time
 # TODO Tweak happiness system depending on basic stats and play time.
 # TODO Fix hygiene.
 # TODO pickle 101 to be able to save and load Pet' state.
+# TODO Random activities.
+'''
+Recommendations for Implementing Random Activities and Movement:
 
-
+Define Activity Pool: Create a list of activities the pet can engage in (e.g., sleep, play with toys, explore, eat, drink).
+Assign Weighted Probabilities: Adjust the likelihood of each activity based on factors like time of day, energy levels, happiness, and recent events.
+Implement a Random Selection Function: Write a function that chooses an activity from the pool based on the weighted probabilities.
+Integrate with Main Loop: Incorporate the random activity selection into the main game loop, executing the chosen activity at regular intervals.
+Create a Navigation System: Designate areas for different activities (e.g., bed for sleeping, play area for playing).
+Implement Movement Logic: Allow the pet to move between these areas based on the selected activity.
+'''
 class Pet(object):
     def __init__(self, owner, name, gender, age):  # Defining one-time values for the pet.
         self._owner = owner
